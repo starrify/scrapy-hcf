@@ -5,6 +5,7 @@ import unittest
 from scrapy.http import Request, Response
 from scrapy.spider import Spider
 from scrapy.utils.test import get_crawler
+from scrapy.utils.python import to_bytes
 from scrapy.exceptions import NotConfigured
 from hubstorage import HubstorageClient
 
@@ -208,7 +209,7 @@ class HcfTestCase(unittest.TestCase):
 
         def get_slot_callback(request):
             md5 = hashlib.md5()
-            md5.update(request.url)
+            md5.update(to_bytes(request.url))
             digest = md5.hexdigest()
             return str(int(digest, 16) % 5)
         self.spider.slot_callback = get_slot_callback
@@ -224,3 +225,8 @@ class HcfTestCase(unittest.TestCase):
 
         # Simulate close spider
         hcf.close_spider(self.spider, 'finished')
+
+    def test_get_slot(self):
+        crawler = self._get_crawler(self.hcf_settings)
+        hcf = self.hcf_cls.from_crawler(crawler)
+        hcf._get_slot(Request('http://foo.com/bar'))

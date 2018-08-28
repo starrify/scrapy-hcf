@@ -7,6 +7,7 @@ from scrapinghub import Connection
 from scrapy import signals, log
 from scrapy.exceptions import NotConfigured
 from scrapy.http import Request
+from scrapy.utils.python import to_bytes
 from hubstorage import HubstorageClient
 
 DEFAULT_MAX_LINKS = 1000
@@ -164,6 +165,6 @@ class HcfMiddleware(object):
     def _get_slot(self, request):
         """ Determine to which slot should be saved the request."""
         md5 = hashlib.md5()
-        md5.update(request.url)
+        md5.update(to_bytes(request.url))
         digest = md5.hexdigest()
         return str(int(digest, 16) % self.hs_number_of_slots)
